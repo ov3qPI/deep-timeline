@@ -59,3 +59,9 @@ Use `1/3`, `2^10`, `2^-3`, `2^10/3`, `1.5e-4`, `0.(3)`, or `2⁷` in a visibilit
 
 ## Source-only GitHub publishing
 Use `bash deep_timeline_source_publish_v20261109T022523Z.sh` to create a fresh private repository from this source bundle. This operation performs no APK build, signing, tag creation, or GitHub Release. See `GITHUB_TERMUX.md`.
+
+## License
+
+Original Deep Timeline source code, tests, documentation, and other original project materials are dedicated to the public domain under [CC0 1.0 Universal](LICENSE) (SPDX identifier: `CC0-1.0`), to the extent their contributors hold the relevant rights.
+
+This dedication does not relicense third-party material. The timezone-coordinate database is separately licensed under ODbL 1.0, with attribution and provenance in [THIRD_PARTY_DATA.md](THIRD_PARTY_DATA.md). Other third-party tools and dependencies retain their own license terms.
