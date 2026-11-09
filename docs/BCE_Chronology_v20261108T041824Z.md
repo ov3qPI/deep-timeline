@@ -1,0 +1,3 @@
+# Deep Timeline BCE chronology
+Version: 20261108T041824Z
+Input years: signed BCE/CE notation without year zero; -1 is 1 BCE; 1 is 1 CE. Java internal years are astronomical: 0 is 1 BCE, -43 is 44 BCE. Legacy SQLite civil strings are migrated to user notation without changing canonical instants. Valid input examples: -44-03-15, -2500-08-19, -200000-01-01, -1000000000-01-01. The usable range is bounded by java.time: approximately one billion years in either direction. Dates are proleptic Gregorian, not Julian and not historical calendars. Local timezone conventions for deep history are extrapolated, not actual historical time. The signed second/nanosecond timeline, moving Now tick, hyperflow, and timezone coordinate resolver are unchanged.

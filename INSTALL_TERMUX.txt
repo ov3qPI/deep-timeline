@@ -1,0 +1,4 @@
+Deep Timeline JSON selective import/export Deep_Timeline_v20261108T180957Z
+After downloading the project ZIP to Android Download, run this in Termux:
+ZIP=/storage/emulated/0/Download/Deep_Timeline_v20261108T180957Z.zip; DEST=/storage/emulated/0/Documents; mkdir -p "$DEST/zip" "$DEST/apk" "$DEST/log"; cp "$ZIP" "$DEST/zip/" && TMP="$(mktemp -d "$HOME/deep_timeline.XXXXXX")" && { unzip -q "$ZIP" -d "$TMP" && (cd "$TMP" && bash build.sh); CODE=$?; rm -rf "$TMP"; if [ "$CODE" -eq 0 ];then termux-open --view "$DEST/apk/Deep_Timeline_v20261108T180957Z.apk";else echo "Build failed: $DEST/log/deep_timeline_build_v20261108T180957Z.log";fi; }
+The first build on a new Termux installation downloads checksum-verified offline timezone data and the compatible D8 compiler. Existing cached dependencies and the original signing keystore are reused for in-place upgrades that retain events. Use bash test.sh for regression tests.

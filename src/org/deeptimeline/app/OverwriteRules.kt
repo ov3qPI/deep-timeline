@@ -1,0 +1,3 @@
+package org.deeptimeline.app
+data class OverwriteSummary(val existing:Int,val selected:Int,val removed:Int,val sharedIds:Int,val newIds:Int)
+object OverwriteRules{fun summarize(existing:Collection<String>,selected:Collection<String>):OverwriteSummary{require(selected.isNotEmpty()){"Cannot overwrite with an empty selection"};require(existing.size==existing.toSet().size){"Existing events contain duplicate UUIDs"};require(selected.size==selected.toSet().size){"Selected events contain duplicate UUIDs"};val old=existing.toSet();val chosen=selected.toSet();val shared=chosen.count{it in old};return OverwriteSummary(old.size,chosen.size,old.count{it !in chosen},shared,chosen.size-shared)}}

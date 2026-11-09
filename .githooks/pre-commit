@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SCRIPT_ID=deep_timeline_secret_guard_v20261109T020314Z
+blocked='\.(json|apk|aab|keystore|jks|p12|pfx|p8|pem|key|age|db|sqlite|sqlite3|bak)$|(^|/)\.env(\.|$)|(^|/)(private|backups|data)/'
+if git diff --cached --name-only --diff-filter=ACMRT | grep -Ei "$blocked";then echo 'ERROR: Sensitive file staged. Unstage before committing.' >&2;exit 1;fi
+if git diff --cached --no-ext-diff --unified=0 | grep -E '^\+[^+]' | grep -E '(--(ks-pass|key-pass)[[:space:]]+pass:|-(storepass|keypass)[[:space:]]+[^$[:space:]]+|github_pat_[A-Za-z0-9_]+|gh[pous]_[A-Za-z0-9_]+|BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY)' >/dev/null;then echo 'ERROR: Potential inline credential staged. Review commit.' >&2;exit 1;fi

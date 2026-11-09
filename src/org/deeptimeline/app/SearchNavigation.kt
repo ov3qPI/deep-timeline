@@ -1,0 +1,3 @@
+package org.deeptimeline.app
+import kotlin.math.min
+object SearchNavigation{fun spanFor(event:TimelineEvent,all:List<TimelineEvent>,currentSpan:Double):Double{var nearby=Double.POSITIVE_INFINITY;for(other in all){if(other.id==event.id||other.moment==event.moment)continue;val delta=TimeMath.halfDistance(event.moment,other.moment).toDouble()/1000000000.0;if(delta>0.0&&delta<nearby)nearby=delta};val context=nearby*6.0;val limit=if(event.maxScaleAmount.isBlank())Double.POSITIVE_INFINITY else VisibilityScale.maxSpan(event.maxScaleAmount,event.maxScaleUnit)*0.5;var desired=currentSpan;if(context.isFinite()&&context>0.0)desired=min(desired,context);if(limit.isFinite()&&limit>0.0)desired=min(desired,limit);return desired.coerceAtLeast(1e-9)}}

@@ -1,0 +1,6 @@
+package org.deeptimeline.app
+import android.content.Context
+import java.io.File
+import java.io.FileOutputStream
+import java.time.ZoneId
+object ZoneResolver{const val SOURCE="BikepackPro timezone raster 2026c, 0.001°";@Volatile private var raster:TimezoneRaster?=null;private const val FILE="timezone_raster_2026c.bin";fun resolve(context:Context,lat:Double,lon:Double):String?{val existing=raster;val engine=if(existing!=null)existing else synchronized(this){raster?:load(context.applicationContext).also{raster=it}};val zone=engine.lookup(lat,lon)?:return null;return if(ZoneId.getAvailableZoneIds().contains(zone))zone else runCatching{ZoneId.of(zone).id}.getOrNull()};private fun load(context:Context):TimezoneRaster{val file=File(context.filesDir,FILE);if(!file.isFile||file.length()!=33687830L){val temp=File(context.filesDir,"$FILE.tmp");try{context.assets.open("tzraster.bin").use{source->FileOutputStream(temp).use{dest->source.copyTo(dest,65536);dest.fd.sync()}};require(temp.length()==33687830L){"Bundled timezone raster has an unexpected size"};if(file.exists())file.delete();require(temp.renameTo(file)){"Unable to activate timezone dataset"}}finally{temp.delete()}};return TimezoneRaster(file)}}

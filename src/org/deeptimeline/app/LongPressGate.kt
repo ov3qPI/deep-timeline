@@ -1,0 +1,2 @@
+package org.deeptimeline.app
+class LongPressGate(private val slop:Float){private var armed=false;private var multiTouch=false;private var originX=0f;private var originY=0f;fun down(x:Float,y:Float){armed=true;multiTouch=false;originX=x;originY=y};fun move(x:Float,y:Float):Boolean{val dx=x-originX;val dy=y-originY;if(dx*dx+dy*dy>slop*slop)armed=false;return armed};fun additionalPointer(){armed=false;multiTouch=true};fun eligible():Boolean=armed&&!multiTouch;fun wasMultiTouch():Boolean=multiTouch;fun finish(){armed=false;multiTouch=false}}

@@ -1,0 +1,11 @@
+# Deep Timeline: danger-zone overwrite
+- The transfer icon offers DANGER ZONE. Normal IMPORT JSON continues to add/update events without deleting any.
+- OVERWRITE TIMELINE FROM JSON reads the selected file and validates each entry before showing the same scrollable event checklist. Invalid rows are disabled. Valid unique events are initially selected; duplicate fingerprints within the file start unchecked.
+- ALL, NONE, INVERSE and X work as normal. Only checked events are used for overwrite; unchecked events and records already stored but absent from the selected set are removed.
+- REVIEW OVERWRITE summarizes current count, selected count, deleted stored UUIDs, retained UUIDs, and new UUIDs. Empty selection is refused.
+- The final modal requires typing OVERWRITE exactly. X, cancellation, or declining leaves the database unchanged.
+- Before database modification, an atomic JSON snapshot of the current events is saved into Android private app storage as last_pre_overwrite.json. If backup creation fails, overwrite does not proceed.
+- SQLite replacement executes DELETE and all INSERTs in a single transaction. If an insert fails, the database rolls back. UUIDs and timestamps for checked events remain intact.
+- DANGER ZONE also offers RESTORE PREVIOUS OVERWRITE, which opens the last saved JSON snapshot in the same checklist/confirmation workflow. A restore replaces the previous backup with a snapshot of the state about to be replaced; at most one such backup is retained.
+- The automatic backup is local to the installed app and is lost if the app is uninstalled or its data is cleared. For durable archival, export events as JSON before overwriting.
+- Android upgrades keep SQLite and the app-private backup if the signing key and package stay unchanged.
