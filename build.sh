@@ -1,6 +1,6 @@
 set -euo pipefail
-SCRIPT_ID=deep_timeline_build_v20261109T020314Z
-APP_ID=Deep_Timeline_v20261108T180957Z
+SCRIPT_ID=deep_timeline_build_v20261111T141738Z
+APP_ID=Deep_Timeline_v20261111T141738Z
 ROOT=/storage/emulated/0
 APK_DIR="$ROOT/Documents/apk"
 LOG_DIR="$ROOT/Documents/log"

@@ -13,7 +13,7 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
-const val APP_VERSION="Deep_Timeline_v20261108T180957Z"
+const val APP_VERSION="Deep_Timeline_v20261111T141738Z"
 val BILLION:BigInteger=BigInteger.valueOf(1000000000L)
 val DAY_SECONDS=86400.0
 val MONTH_SECONDS=29.530588853*DAY_SECONDS

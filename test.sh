@@ -31,3 +31,5 @@ kotlinc src/org/deeptimeline/app/TemporalCore.kt src/org/deeptimeline/app/Visibi
 java -jar "$TMP/exact-scale-tests.jar"
 kotlinc src/org/deeptimeline/app/TemporalCore.kt src/org/deeptimeline/app/VisibilityScale.kt src/org/deeptimeline/app/SearchNavigation.kt tests/SearchNavigationTests.kt -include-runtime -d "$TMP/search-navigation-tests.jar"
 java -jar "$TMP/search-navigation-tests.jar"
+kotlinc src/org/deeptimeline/app/IcsImport.kt tests/IcsTests.kt -include-runtime -d "$TMP/ics-tests.jar"
+java -jar "$TMP/ics-tests.jar"
