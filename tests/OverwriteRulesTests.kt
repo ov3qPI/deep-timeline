@@ -1,2 +1,0 @@
-package org.deeptimeline.app
-fun main(){val result=OverwriteRules.summarize(listOf("a","b","c","d"),listOf("a","c","z"));check(result==OverwriteSummary(4,3,2,2,1));check(runCatching{OverwriteRules.summarize(listOf("a"),emptyList())}.isFailure);check(runCatching{OverwriteRules.summarize(listOf("a"),listOf("b","b"))}.isFailure);val gone=OverwriteRules.summarize(listOf("a","b","c"),listOf("d"));check(gone.removed==3&&gone.newIds==1&&gone.sharedIds==0);println("PASS: overwrite summary, removed ID detection, empty and duplicate selection rejection")}

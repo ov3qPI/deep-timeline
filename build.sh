@@ -1,10 +1,14 @@
 set -euo pipefail
-SCRIPT_ID=deep_timeline_build_v20261111T141738Z
+SCRIPT_ID=deep_timeline_build_v20261111T143151Z
 APP_ID=Deep_Timeline_v20261111T141738Z
 ROOT=/storage/emulated/0
 APK_DIR="$ROOT/Documents/apk"
 LOG_DIR="$ROOT/Documents/log"
-mkdir -p "$APK_DIR" "$LOG_DIR"
+SIGNING_DIR="$ROOT/Documents/keystore"
+PERSISTENT_KEYSTORE="$SIGNING_DIR/deep_timeline_signing.keystore"
+LEGACY_KEYSTORE="$HOME/.deep_timeline_signing.keystore"
+EXPECTED_SIGNER=14ce44165cae3879ac579d114c5c190d2a8e9e6281b913afc7bce7eebb9987d6
+mkdir -p "$APK_DIR" "$LOG_DIR" "$SIGNING_DIR"
 LOG="$LOG_DIR/${SCRIPT_ID}.log"
 exec > >(tee "$LOG") 2>&1
 cd "$(dirname "$0")"
@@ -26,6 +30,25 @@ if [ ! -f "$KOTLIN_LIB/kotlin-stdlib.jar" ];then echo "ERROR: Kotlin standard li
 WORK="$(mktemp -d "${TMPDIR:-$HOME}/deep_timeline_compile.XXXXXX")"
 trap 'rm -rf "$WORK"' EXIT
 mkdir -p "$WORK/classes" "$WORK/dex"
+KEYSTORE="$PERSISTENT_KEYSTORE"
+if [ ! -e "$KEYSTORE" ] && [ -s "$LEGACY_KEYSTORE" ];then KEYSTORE="$LEGACY_KEYSTORE";fi
+[ -s "$KEYSTORE" ] || { echo "ERROR: Original signing keystore missing; expected $PERSISTENT_KEYSTORE or $LEGACY_KEYSTORE";exit 1; }
+[ -n "${DEEP_TIMELINE_STORE_PASS:-}" ] || { echo 'ERROR: DEEP_TIMELINE_STORE_PASS is not provided';exit 1; }
+[ -n "${DEEP_TIMELINE_KEY_PASS:-}" ] || { echo 'ERROR: DEEP_TIMELINE_KEY_PASS is not provided';exit 1; }
+KEY_INFO="$(keytool -list -v -keystore "$KEYSTORE" -alias deep-timeline -storepass:env DEEP_TIMELINE_STORE_PASS 2>"$WORK/signing_preflight_error.log")" || { echo 'ERROR: Cannot unlock or inspect the original signing keystore';exit 1; }
+printf '%s\n' "$KEY_INFO" | grep -Fq 'Entry type: PrivateKeyEntry' || { echo 'ERROR: Signing alias is not a private-key entry';exit 1; }
+KEY_SIGNER="$(printf '%s\n' "$KEY_INFO" | sed -nE 's/^[[:space:]]*SHA256:[[:space:]]*([[:xdigit:]:]+)[[:space:]]*$/\1/p' | head -n 1 | tr '[:upper:]' '[:lower:]' | tr -d ':')"
+[ "$KEY_SIGNER" = "$EXPECTED_SIGNER" ] || { echo 'ERROR: Original signing certificate does not match the installed app identity';exit 1; }
+keytool -certreq -keystore "$KEYSTORE" -alias deep-timeline -storepass:env DEEP_TIMELINE_STORE_PASS -keypass:env DEEP_TIMELINE_KEY_PASS -file "$WORK/signing_preflight.csr" >"$WORK/signing_preflight_error.log" 2>&1 || { echo 'ERROR: Signing key credentials failed preflight';exit 1; }
+rm -f "$WORK/signing_preflight.csr" "$WORK/signing_preflight_error.log"
+if [ "$KEYSTORE" = "$LEGACY_KEYSTORE" ];then
+ [ ! -e "$PERSISTENT_KEYSTORE" ] || { echo 'ERROR: Persistent signing filename already exists; original keystore left in place';exit 1; }
+ mv -n -- "$LEGACY_KEYSTORE" "$PERSISTENT_KEYSTORE" || { echo 'ERROR: Could not move original keystore into Documents/keystore';exit 1; }
+ [ -s "$PERSISTENT_KEYSTORE" ] || { echo 'ERROR: Persistent keystore migration incomplete';exit 1; }
+ KEYSTORE="$PERSISTENT_KEYSTORE"
+ echo "SIGNING: Original keystore migrated to $KEYSTORE"
+fi
+echo 'OK: Signing certificate, alias, and credentials preflight verified'
 run_stage(){
  local stage="$1";shift
  local output="$WORK/${stage}.log";local preserved="$LOG_DIR/${SCRIPT_ID}_${stage}.log"
@@ -82,11 +105,6 @@ run_stage dex java -Xmx1536m -cp "$R8_JAR" com.android.tools.r8.D8 --release --m
 cp "$WORK/base.apk" "$WORK/with_dex.apk"
 run_stage package bash -c 'cd "$1" && zip -q -0 "$2" classes*.dex' _ "$WORK/dex" "$WORK/with_dex.apk"
 run_stage align zipalign -f 4 "$WORK/with_dex.apk" "$WORK/aligned.apk"
-KEYSTORE="$HOME/.deep_timeline_signing.keystore"
-EXPECTED_SIGNER=14ce44165cae3879ac579d114c5c190d2a8e9e6281b913afc7bce7eebb9987d6
-[ -s "$KEYSTORE" ] || { echo 'ERROR: Original signing keystore missing; refusing to generate replacement identity';exit 1; }
-[ -n "${DEEP_TIMELINE_STORE_PASS:-}" ] || { echo 'ERROR: DEEP_TIMELINE_STORE_PASS is not provided';exit 1; }
-[ -n "${DEEP_TIMELINE_KEY_PASS:-}" ] || { echo 'ERROR: DEEP_TIMELINE_KEY_PASS is not provided';exit 1; }
 run_stage sign apksigner sign --ks "$KEYSTORE" --ks-key-alias deep-timeline --ks-pass env:DEEP_TIMELINE_STORE_PASS --key-pass env:DEEP_TIMELINE_KEY_PASS --out "$WORK/signed.apk" "$WORK/aligned.apk"
 run_stage verify apksigner verify --verbose "$WORK/signed.apk"
 SIGNER_REPORT="$(apksigner verify --print-certs "$WORK/signed.apk")"

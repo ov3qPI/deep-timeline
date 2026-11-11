@@ -1,5 +1,4 @@
-# Security and privacy
-This repository is source-only: no APKs, signing keystores, key passwords, personal event JSON, downloaded timezone raster, logs, or build products are to be committed.
-The source-only publisher does not access signing keys or require keystore password rotation. The former private repository included a hardcoded signing password, so changing that password and storing encrypted backups remains advisable before any future APK signing/distribution. Removing the old GitHub repository does not itself change the keystore password.
-The current build script refuses to generate a new signing keypair and requires a locally supplied password. The package name and signing certificate remain unchanged.
-A pre-commit guard and `.gitignore` reduce accidental disclosure, but do not replace manual review. Keep the repository private until all history and source have been checked for personal information.
+# Security
+This is a source-only repository. Do not commit APKs, app signing keystores, signing credentials, personal event exports, timezone raster binaries, logs, caches, or generated build products.
+The Android application ID and expected certificate SHA-256 are fixed for compatible in-place upgrades. Builds refuse to generate replacement signing material, validate the original keystore and signing credentials before compilation, and check the signed APK against the expected certificate.
+The original signing keystore belongs at `/storage/emulated/0/Documents/keystore/deep_timeline_signing.keystore`, where it survives a Termux wipe. Android shared storage is not securely isolated from every app; maintain appropriate device access controls and a protected backup. Private data resides in the installed app's storage and is not part of this repository.

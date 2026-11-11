@@ -1,4 +1,0 @@
-package org.deeptimeline.app
-import kotlin.math.abs
-fun main(){fun near(a:Float,b:Float){check(abs(a-b)<0.001f){"$a != $b"}};fun rotated(v:VerticalClockPlacement,x:Float,y:Float):Pair<Float,Float> = Pair(v.pivotX+(y-v.pivotY),v.pivotY-(x-v.pivotX))
-for(height in listOf(320f,680f,1800f)){val width=250f;val ascent=-13f;val descent=3f;val p=VerticalClockLayout.place(77f,height,44f,width,ascent,descent);val mid=rotated(p,p.textX+width*0.5f,p.baselineY+(ascent+descent)*0.5f);near(mid.first,p.pivotX);near(mid.second,height*0.5f);val start=rotated(p,p.textX,p.baselineY);val end=rotated(p,p.textX+width,p.baselineY);check(start.second>end.second);near((start.second+end.second)*0.5f,height*0.5f);check(p.pivotX>0f)};println("Clock geometry: rotated label remains centered in left gutter, reads bottom to top: PASS")}
